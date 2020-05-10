@@ -1,0 +1,27 @@
+name: itch.io HTML Build
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  itch_build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+    - name: format-json.py
+      run: python3 scripts/format_json.py minify
+    - name: Zip Folder
+      run: zip -r build.zip src/ -x "Game.rpgproject" "save/*"
+    - uses: josephbmanley/butler-publish-itchio-action@master
+      env:
+        BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
+        CHANNEL: HTML
+        ITCH_GAME: ITCHGAME
+        ITCH_USER: ITCHUSER
+        PACKAGE: build.zip
